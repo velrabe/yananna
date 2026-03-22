@@ -119,7 +119,7 @@ html, body {
 
 .hero-img-1 {
   left: -3%;
-  top: 78%;
+  top: 66%;
   transform: rotate(-5deg);
 }
 
@@ -401,7 +401,7 @@ html, body {
 }
 
 .congrats-text {
-  font-size: 16px;
+  font-size: 13px;
   line-height: 1.5;
   color: black;
   padding: 20px 16px 16px;
@@ -430,6 +430,8 @@ html, body {
 /* ========== Section 3: Hidden ========== */
 .section-hidden {
   background: #f8f8f8;
+  height: 600px;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -437,6 +439,16 @@ html, body {
   padding: 24px;
   scroll-snap-align: end;
   scroll-snap-stop: always;
+  position: relative;
+}
+
+.hidden-bonya {
+  position: absolute;
+  top: -134px;
+  right: 0;
+  z-index: 10;
+  height: auto;
+  max-height: 200px;
 }
 
 .hidden-content {

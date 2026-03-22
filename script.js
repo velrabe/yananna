@@ -297,10 +297,10 @@
   updateDisplay();
 
   // ========== Keyboard Modal ==========
+  const content = document.querySelector('.content');
   const keyboardModal = document.getElementById('keyboardModal');
   const keyboardModalClose = document.getElementById('keyboardModalClose');
   const keyboardToggleBtn = document.getElementById('keyboardToggleBtn');
-
   function openKeyboardModal() {
     if (keyboardModal) {
       keyboardModal.classList.add('is-open');
@@ -316,10 +316,21 @@
     }
   }
 
+  function scrollToDisplayAndOpenKeyboard() {
+    const sectionHero = document.querySelector('.section-hero');
+    const targetScroll = sectionHero ? sectionHero.offsetHeight : 0;
+    if (content && content.scrollTop > targetScroll + 50) {
+      content.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      setTimeout(openKeyboardModal, 400);
+    } else {
+      openKeyboardModal();
+    }
+  }
+
   if (keyboardToggleBtn) {
     keyboardToggleBtn.addEventListener('click', function(e) {
       e.preventDefault();
-      openKeyboardModal();
+      scrollToDisplayAndOpenKeyboard();
     });
   }
   if (keyboardModalClose) {
@@ -327,14 +338,13 @@
   }
 
   // ========== Tension Scroll (Section 3) ==========
-  const content = document.querySelector('.content');
   const sectionKeyboard = document.querySelector('.section-keyboard');
   const sectionHidden = document.getElementById('sectionHidden');
 
   if (!content || !sectionKeyboard || !sectionHidden) return;
 
-  const TENSION_THRESHOLD = 50; // px to overcome for snap to section 3
-  const RESISTANCE = 0.5;      // 60px скролла → ~30px движения (параллакс: тянешь сильно, идёт слабо)
+  const TENSION_THRESHOLD = 60; // преодолел 60px — снап к низу скрытого блока (TikTok)
+  const RESISTANCE = 0.5;      // 60px пальцем → 30px пролистывания (параллакс)
 
   let touchStartY = 0;
   let scrollStartTop = 0;
