@@ -173,8 +173,8 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 50vh;
-  padding: 16px;
+  min-height: 0;
+  padding: 12px 12px 0;
 }
 
 .display-area {
@@ -227,9 +227,9 @@ html, body {
 .keyboard {
   display: flex;
   flex-direction: column;
-  gap: clamp(4px, 1.2vw, 8px);
+  gap: 6px;
   margin-top: auto;
-  padding-top: 16px;
+  padding: 12px 8px;
   width: 100%;
 }
 
@@ -237,11 +237,11 @@ html, body {
   display: flex;
   justify-content: center;
   flex-wrap: nowrap;
-  gap: clamp(2px, 0.6vw, 6px);
+  gap: 6px;
 }
 
 .keyboard-row-symbols {
-  margin-top: clamp(4px, 1.2vw, 8px);
+  margin-top: 6px;
   justify-content: center;
 }
 
@@ -257,20 +257,38 @@ html, body {
 .key {
   flex: 1 1 0;
   min-width: 0;
-  height: clamp(32px, 8vw, 44px);
+  height: clamp(46px, 13vw, 54px);
   padding: 0;
-  font-size: clamp(11px, 2.8vw, 14px);
+  font-size: clamp(16px, 4.5vw, 22px);
   font-family: inherit;
   color: black;
   background: #e8e8e8;
   border: 1px solid #ccc;
-  border-radius: clamp(4px, 1.2vw, 6px);
+  border-radius: 6px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.key-popover {
+  position: fixed;
+  transform: translateY(-100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  font-size: clamp(24px, 6vw, 32px);
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 .key:active {
@@ -288,7 +306,7 @@ html, body {
 }
 
 .key-backspace, .key-clear {
-  font-size: clamp(10px, 2.4vw, 12px);
+  font-size: clamp(14px, 3.5vw, 18px);
 }
 
 .key-arrow {

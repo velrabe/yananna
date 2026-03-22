@@ -65,8 +65,8 @@
 
   const displayArea = document.getElementById('displayArea');
 
-  let text = '';
-  let cursorPos = 0;
+  let text = 'Спасибо за вдохновение!';
+  let cursorPos = text.length;
 
   function isLetterOrPunct(char) {
     return (char && (FONT_GLYPHS[(char || '').toLowerCase()] || FONT_PUNCTUATION[char])) || char === ' ';
@@ -196,8 +196,72 @@
     updateDisplay();
   }
 
+  // Long-press: secondary char (iOS-style), popup above key
+  const LONG_PRESS_MS = 450;
+  let longPressTimer = null;
+  let longPressHandled = false;
+  let activeKeyBtn = null;
+  let popoverEl = null;
+
+  function showPopover(btn, char) {
+    hidePopover();
+    popoverEl = document.createElement('div');
+    popoverEl.className = 'key-popover';
+    popoverEl.textContent = char;
+    document.body.appendChild(popoverEl);
+    const rect = btn.getBoundingClientRect();
+    popoverEl.style.left = rect.left + 'px';
+    popoverEl.style.top = (rect.top - 4) + 'px';
+    popoverEl.style.width = rect.width + 'px';
+    popoverEl.style.transform = 'translateY(-100%)';
+  }
+  function hidePopover() {
+    if (popoverEl && popoverEl.parentNode) popoverEl.parentNode.removeChild(popoverEl);
+    popoverEl = null;
+  }
+
+  function cancelLongPress() {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+    activeKeyBtn = null;
+    hidePopover();
+  }
+
+  function handleKeyPress(btn, useSecondary) {
+    const char = useSecondary ? (btn.dataset.secondary || btn.dataset.char) : btn.dataset.char;
+    insertChar(char);
+  }
+
   document.querySelectorAll('.key[data-char]').forEach(btn => {
-    btn.addEventListener('click', () => insertChar(btn.dataset.char));
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      activeKeyBtn = btn;
+      const secondary = btn.dataset.secondary;
+      longPressHandled = false;
+      longPressTimer = setTimeout(() => {
+        longPressHandled = true;
+        if (secondary) showPopover(btn, secondary);
+      }, secondary ? LONG_PRESS_MS : 99999);
+    });
+    btn.addEventListener('pointerup', (e) => {
+      var btnEl = e.target.closest('.key[data-char]');
+      if (!btnEl || btnEl !== activeKeyBtn) {
+        cancelLongPress();
+        return;
+      }
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+      var sec = activeKeyBtn.dataset.secondary;
+      if (longPressHandled && sec) {
+        handleKeyPress(activeKeyBtn, true);
+      } else {
+        handleKeyPress(activeKeyBtn, false);
+      }
+      hidePopover();
+      activeKeyBtn = null;
+    });
+    btn.addEventListener('pointerleave', cancelLongPress);
+    btn.addEventListener('pointercancel', cancelLongPress);
   });
 
   document.querySelector('.key-backspace').addEventListener('click', backspace);
