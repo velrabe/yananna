@@ -443,11 +443,11 @@ html, body {
 
 .hidden-bonya {
   position: absolute;
-  top: -202px;
+  top: -199px;
   right: 0;
   z-index: 10;
-  height: auto;
-  max-height: 200px;
+  height: 240px;
+  width: auto;
 }
 
 .hidden-content {

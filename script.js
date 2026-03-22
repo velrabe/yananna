@@ -43,7 +43,7 @@
         return;
       }
       container.classList.add('hero-img-visible');
-      const cycleInterval = 350 + Math.random() * 400; // 0.35–0.75 сек между сменами
+      const cycleInterval = 1000; // смена фото раз в секунду
       const intervalId = setInterval(() => {
         const images = IMAGE_SETS[container.dataset.folder];
         if (images && images.length) {
