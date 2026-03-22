@@ -353,6 +353,10 @@ html, body {
 
 .key-clear {
   margin-right: 4px;
+}
+
+.key-clear-text {
+  display: inline-block;
   transform: rotate(-90deg);
 }
 
