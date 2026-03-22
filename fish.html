@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рыба — SVG шрифт</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      padding: 20px;
+      align-content: flex-start;
+    }
+    .char {
+      display: inline-flex;
+      align-items: flex-end;
+      height: 140px;
+    }
+    .char img {
+      height: 140px;
+      width: auto;
+      display: block;
+    }
+    .placeholder {
+      font-size: 12px;
+      color: #888;
+      padding: 0 2px;
+      align-self: center;
+    }
+    .space {
+      display: inline-block;
+      width: 37px;
+      height: 1px;
+    }
+  </style>
+</head>
+<body></body>
+<script src="font-data.js"></script>
+<script>
+(function () {
+  const FONT_PATH = 'assets/font/';
+
+  const PUNCTUATION = {
+    ';': 'точка с запятой',
+    '(': 'открывающая скобка', ')': 'закрывающая скобка',
+    '"': 'кавычки', '«': 'кавычка елочка', '»': 'кавычка елочка'
+  };
+
+  function isLetterOrPunct(char) {
+    return (char && FONT_GLYPHS[char.toLowerCase()]) || FONT_PUNCTUATION[char] || char === ' ';
+  }
+
+  function getContext(text, i, prevGlyphVariantId) {
+    const prev = i > 0 ? text[i - 1] : null;
+    const next = i < text.length - 1 ? text[i + 1] : null;
+    const wordStart = !prev || prev === ' ' || !isLetterOrPunct(prev);
+    let wordStartIdx = i;
+    while (wordStartIdx > 0 && text[wordStartIdx - 1] !== ' ') wordStartIdx--;
+    let wordEndIdx = i;
+    while (wordEndIdx < text.length && text[wordEndIdx] !== ' ') wordEndIdx++;
+    let positionInWord = 0;
+    let letterCountInWord = 0;
+    for (let k = wordStartIdx; k < wordEndIdx; k++) {
+      if (FONT_GLYPHS[(text[k] || '').toLowerCase()]) {
+        letterCountInWord++;
+        if (k <= i) positionInWord++;
+      }
+    }
+    const isStandaloneWord = letterCountInWord === 1;
+    return { wordStart, prevChar: prev ? prev.toLowerCase() : null, nextChar: next ? next.toLowerCase() : null, positionInWord, prevGlyphVariantId, isStandaloneWord };
+  }
+
+  function getSpacing(glyphData, nextChar) {
+    const base = glyphData.spacing || { left: 0, right: 0 };
+    if (nextChar && glyphData.nextOverrides && glyphData.nextOverrides[nextChar]) {
+      const over = glyphData.nextOverrides[nextChar];
+      return {
+        left: base.left,
+        right: over.right !== undefined ? over.right : base.right
+      };
+    }
+    return base;
+  }
+
+  function applySpacing(span, glyphData, nextChar) {
+    const s = getSpacing(glyphData, nextChar);
+    const img = span.querySelector('img');
+    if (!img) return;
+    const apply = () => {
+      const w = img.offsetWidth;
+      span.style.marginLeft = (w * s.left / 100) + 'px';
+      span.style.marginRight = (w * s.right / 100) + 'px';
+    };
+    img.onload = apply;
+    if (img.complete) apply();
+  }
+
+  function renderChar(char, context, nextChar, forceVariantId) {
+    if (char === ' ') {
+      const sp = document.createElement('span');
+      sp.className = 'space';
+      return sp;
+    }
+
+    const span = document.createElement('span');
+    span.className = 'char';
+
+    const punct = FONT_PUNCTUATION[char];
+    if (punct) {
+      const img = document.createElement('img');
+      img.src = FONT_PATH + punct.file + '.svg?t=' + Date.now();
+      img.alt = char;
+      span.appendChild(img);
+      applySpacing(span, punct, nextChar);
+      return span;
+    }
+
+    if (PUNCTUATION[char] !== undefined) {
+      const ph = document.createElement('span');
+      ph.className = 'placeholder';
+      ph.textContent = `[${PUNCTUATION[char]}]`;
+      span.appendChild(ph);
+      return span;
+    }
+
+    const lower = char.toLowerCase();
+    const glyph = FONT_GLYPHS[lower];
+    if (!glyph) return span;
+
+    const variantId = forceVariantId || glyph.selectVariant(context);
+    const variant = glyph.variants[variantId];
+    if (!variant) return span;
+
+    const img = document.createElement('img');
+    img.src = FONT_PATH + variant.file + '.svg?t=' + Date.now();
+    img.alt = char;
+    span.appendChild(img);
+    applySpacing(span, variant, nextChar);
+    return span;
+  }
+
+  const FISH_TEXT = `а1а2б1б2в1в2г1г2д1д2е1е2ё1ё2жз1з2и1и2йк1к2лм1м2н1н2н3о1о2о3п1п2р1р2с1с2т1т2т3у1у2фхцч1ч2шщъыьэ1э2юя1я2. а1 а2 б1 б2 в1 в2 г1 г2 д1 д2 е1 е2 ё1 ё2 ж з1 з2 и1 и2 й к1 к2 л м1 м2 н1 н2 н3 о1 о2 о3 п1 п2 р1 р2 с1 с2 т1 т2 т3 у1 у2 ф х ц ч1 ч2 ш щ ъ ы ь э1 э2 ю я1 я2. широкая электрификация южных губерний даст мощный толчок подъёму сельского хозяйства. съешь ещё этих мягких французских булок, да выпей чаю. любя, съешь щипцы — вздохнёт мэр, кайф жлоб. эх, чужой заморский щипцов с подъёмом — не худо бы съесть. в чащах юга жил бы цитрус? да, но фальшивый экземпляр! эй, жук! дай же чуб в зил с ёжом ухать в цирк. шеф взъярён: тщетно шипят ёжики — чуждый хач не смог бы съесть хрюшу. южная энциклопедия — это эпоха юрких цепей и жгучих щей. флегматичная эта верблюдица жуёт у подъезда завтрак из тщетно поблёкших хризантем. через час щенки жадно ели овощи. эй, цирюльня! щипцы с ёршом — в зил фуга. юный дирижёр ищет квартиру. чуждый хищник — эгофуга жжёт цирюльнями щепоткой хрен. эх, я чужой! зовёт съесть щей — чай, фуга. шифровальщица жжёт экзекуцией. щипучий эндшпиль — вьюжек ждать. факт: шипы в цирюльне жгут. эзотерический юнга ехал щипать хвосты. флюгарка жжёт цирюльню — щипцы ёкнули. чудные ёжики шеф щипал в цирюльне.`;
+
+  const body = document.body;
+  const chars = [...FISH_TEXT];
+  let lastLetterVariantId = null;
+  for (let i = 0; i < chars.length; i++) {
+    let char = chars[i];
+    let forceVariant = null;
+    const lower = char.toLowerCase();
+    if (FONT_GLYPHS[lower]) {
+      const peek = chars[i + 1];
+      if (peek && /^\d$/.test(peek)) {
+        const vId = lower + peek;
+        if (FONT_GLYPHS[lower].variants[vId]) {
+          forceVariant = vId;
+          i++;
+        }
+      }
+    }
+    const nextIdx = i + 1;
+    const next = chars[nextIdx] ? chars[nextIdx].toLowerCase() : null;
+    const ctxIdx = forceVariant ? i - 1 : i;
+    const ctx = getContext(FISH_TEXT, ctxIdx, lastLetterVariantId);
+    const el = renderChar(char, ctx, next, forceVariant);
+    body.appendChild(el);
+    if (char === ' ' || PUNCTUATION[char] !== undefined || FONT_PUNCTUATION[char]) {
+      lastLetterVariantId = null;
+    } else if (FONT_GLYPHS[lower] && el.querySelector('.char img')) {
+      const variantId = forceVariant || FONT_GLYPHS[lower].selectVariant(ctx);
+      lastLetterVariantId = variantId;
+    }
+  }
+})();
+</script>
+</html>

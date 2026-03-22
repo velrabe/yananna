@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Yananna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <main class="content">
+      <!-- Section 1: Header with background -->
+      <section class="section section-hero">
+        <div class="hero-inner">
+          <div class="hero-bg">
+            <div class="hero-bg-video">
+              <video class="hero-bg-video-el" autoplay loop muted playsinline>
+                <source src="vid.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="hero-bg-layer hero-img hero-img-1" data-folder="b-l">
+              <img src="assets/b-l/1.png" alt="">
+            </div>
+            <div class="hero-bg-layer hero-img hero-img-2" data-folder="t-r">
+              <img src="assets/t-r/1.png" alt="">
+            </div>
+            <div class="hero-bg-layer hero-img hero-img-3" data-folder="t-l">
+              <img src="assets/t-l/1.png" alt="">
+            </div>
+            <div class="hero-bg-layer hero-img hero-img-4" data-folder="b-r">
+              <img src="assets/b-r/1.png" alt="">
+            </div>
+          </div>
+          <div class="hero-svg-container">
+            <svg class="hero-svg" viewBox="0 0 2 3" preserveAspectRatio="xMidYMid meet">
+              <ellipse cx="1" cy="1.5" rx="0.9" ry="1.35" fill="none" stroke="white" stroke-width="0.08"/>
+              <ellipse cx="1" cy="1.5" rx="0.6" ry="0.9" fill="none" stroke="white" stroke-width="0.06"/>
+              <ellipse cx="1" cy="1.5" rx="0.3" ry="0.45" fill="none" stroke="white" stroke-width="0.04"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Display + Keyboard -->
+      <section class="section section-keyboard">
+        <div class="keyboard-block">
+          <div class="display-area" id="displayArea"></div>
+          <div class="keyboard">
+            <div class="keyboard-row">
+              <button class="key" data-char="й">й</button>
+              <button class="key" data-char="ц">ц</button>
+              <button class="key" data-char="у">у</button>
+              <button class="key" data-char="к">к</button>
+              <button class="key" data-char="е">е</button>
+              <button class="key" data-char="н">н</button>
+              <button class="key" data-char="г">г</button>
+              <button class="key" data-char="ш">ш</button>
+              <button class="key" data-char="щ">щ</button>
+              <button class="key" data-char="з">з</button>
+              <button class="key" data-char="х">х</button>
+              <button class="key" data-char="ъ">ъ</button>
+              <button class="key key-wide key-backspace">⌫</button>
+            </div>
+            <div class="keyboard-row">
+              <button class="key" data-char="ф">ф</button>
+              <button class="key" data-char="ы">ы</button>
+              <button class="key" data-char="в">в</button>
+              <button class="key" data-char="а">а</button>
+              <button class="key" data-char="п">п</button>
+              <button class="key" data-char="р">р</button>
+              <button class="key" data-char="о">о</button>
+              <button class="key" data-char="л">л</button>
+              <button class="key" data-char="д">д</button>
+              <button class="key" data-char="ж">ж</button>
+              <button class="key" data-char="э">э</button>
+            </div>
+            <div class="keyboard-row">
+              <button class="key" data-char="я">я</button>
+              <button class="key" data-char="ч">ч</button>
+              <button class="key" data-char="с">с</button>
+              <button class="key" data-char="м">м</button>
+              <button class="key" data-char="и">и</button>
+              <button class="key" data-char="т">т</button>
+              <button class="key" data-char="ь">ь</button>
+              <button class="key" data-char="б">б</button>
+              <button class="key" data-char="ю">ю</button>
+            </div>
+            <div class="keyboard-row keyboard-row-symbols">
+              <button class="key key-clear">clear</button>
+              <span class="key-spacer"></span>
+              <button class="key" data-char="?">?</button>
+              <button class="key" data-char="!">!</button>
+              <button class="key key-space" data-char=" ">пробел</button>
+              <button class="key" data-char=",">,</button>
+              <button class="key" data-char=".">.</button>
+            </div>
+          </div>
+        </div>
+        <p class="congrats-text">
+          Поздравление шрифтом Inter, размер 16 пикселей. Пример текста в три или четыре строки для визуальной проверки верстки. Около ста пятидесяти символов должно помещаться в этот блок.
+        </p>
+      </section>
+
+      <!-- Section 3: Hidden (tension/snap) -->
+      <section class="section section-hidden" id="sectionHidden">
+        <div class="hidden-content">
+          <svg class="hidden-svg" viewBox="0 0 64 48" width="64" height="48">
+            <rect width="64" height="48" fill="none" stroke="currentColor" stroke-width="1"/>
+          </svg>
+          <p class="hidden-text">Скрытый текст 14 пикселей серый, выровнен по центру</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="font-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
