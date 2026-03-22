@@ -35,6 +35,17 @@
       width: 37px;
       height: 1px;
     }
+    .debug-section {
+      flex-basis: 100%;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #ddd;
+    }
+    .debug-section h2 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body></body>
@@ -142,38 +153,73 @@
     return span;
   }
 
+  const A_DEBUG_TEXT = `а а1 а2. абажур аист акт алмаз амфора ангел апорт арбуз астра афера. баба вата гараж какао лапа мама папа рама сажа тара хата царица чаща шабаш. аф аэ аи ао ау аы ае аю ая. ба ва га да жа за ка ла ма на па ра са та фа ха ца ча ша ща. аб ав аг ад аж аз ак ал ам ан ап ар ас ат аф ах ац ач аш ащ.`;
+
+  const P_DEBUG_TEXT = `п п1 п2. папа поппа поезд повар помидор порог привет прыжок пушка пыл. лапа папа сип топ чепуха шипы щипцы. ап оп уп ып еп юп яп ип. па пэ пи по пу пы пе пю пя. бп вп гп дп жп зп кп лп мп нп рп сп тп фп хп цп чп шп щп ъп ып ьп. пб пв пг пд пж пз пк пл пм пн пр пс пт пф пх пц пч пш пщ пъ пы пь.`;
+
+  const F_DEBUG_TEXT = `ф аф эф иф оф уф ыф еф юф яф фа фэ фи фо фу фы фе фю фя. фраза факт фокус фото футбол флаг фонарь феномен фанера финал форум фурор. афера офис уф кайф шеф граф кофе шрифт фанера флегматичный. аф эф иф оф уф бф вф гф дф жф зф кф лф мф нф пф рф сф тф хф цф чф шф щф ъф ыф ьф. фб фв фг фд фж фз фк фл фм фн фп фр фс фт фх фц фч фш фщ фъ фы фь.`;
+
   const FISH_TEXT = `а1а2б1б2в1в2г1г2д1д2е1е2ё1ё2жз1з2и1и2йк1к2лм1м2н1н2н3о1о2о3п1п2р1р2с1с2т1т2т3у1у2фхцч1ч2шщъыьэ1э2юя1я2. а1 а2 б1 б2 в1 в2 г1 г2 д1 д2 е1 е2 ё1 ё2 ж з1 з2 и1 и2 й к1 к2 л м1 м2 н1 н2 н3 о1 о2 о3 п1 п2 р1 р2 с1 с2 т1 т2 т3 у1 у2 ф х ц ч1 ч2 ш щ ъ ы ь э1 э2 ю я1 я2. широкая электрификация южных губерний даст мощный толчок подъёму сельского хозяйства. съешь ещё этих мягких французских булок, да выпей чаю. любя, съешь щипцы — вздохнёт мэр, кайф жлоб. эх, чужой заморский щипцов с подъёмом — не худо бы съесть. в чащах юга жил бы цитрус? да, но фальшивый экземпляр! эй, жук! дай же чуб в зил с ёжом ухать в цирк. шеф взъярён: тщетно шипят ёжики — чуждый хач не смог бы съесть хрюшу. южная энциклопедия — это эпоха юрких цепей и жгучих щей. флегматичная эта верблюдица жуёт у подъезда завтрак из тщетно поблёкших хризантем. через час щенки жадно ели овощи. эй, цирюльня! щипцы с ёршом — в зил фуга. юный дирижёр ищет квартиру. чуждый хищник — эгофуга жжёт цирюльнями щепоткой хрен. эх, я чужой! зовёт съесть щей — чай, фуга. шифровальщица жжёт экзекуцией. щипучий эндшпиль — вьюжек ждать. факт: шипы в цирюльне жгут. эзотерический юнга ехал щипать хвосты. флюгарка жжёт цирюльню — щипцы ёкнули. чудные ёжики шеф щипал в цирюльне.`;
 
-  const body = document.body;
-  const chars = [...FISH_TEXT];
-  let lastLetterVariantId = null;
-  for (let i = 0; i < chars.length; i++) {
-    let char = chars[i];
-    let forceVariant = null;
-    const lower = char.toLowerCase();
-    if (FONT_GLYPHS[lower]) {
-      const peek = chars[i + 1];
-      if (peek && /^\d$/.test(peek)) {
-        const vId = lower + peek;
-        if (FONT_GLYPHS[lower].variants[vId]) {
-          forceVariant = vId;
-          i++;
+  function renderText(container, text) {
+    const chars = [...text];
+    let lastLetterVariantId = null;
+    for (let i = 0; i < chars.length; i++) {
+      let char = chars[i];
+      let forceVariant = null;
+      const lower = char.toLowerCase();
+      if (FONT_GLYPHS[lower]) {
+        const peek = chars[i + 1];
+        if (peek && /^\d$/.test(peek)) {
+          const vId = lower + peek;
+          if (FONT_GLYPHS[lower].variants[vId]) {
+            forceVariant = vId;
+            i++;
+          }
         }
       }
-    }
-    const nextIdx = i + 1;
-    const next = chars[nextIdx] ? chars[nextIdx].toLowerCase() : null;
-    const ctxIdx = forceVariant ? i - 1 : i;
-    const ctx = getContext(FISH_TEXT, ctxIdx, lastLetterVariantId);
-    const el = renderChar(char, ctx, next, forceVariant);
-    body.appendChild(el);
-    if (char === ' ' || PUNCTUATION[char] !== undefined || FONT_PUNCTUATION[char]) {
-      lastLetterVariantId = null;
-    } else if (FONT_GLYPHS[lower] && el.querySelector('.char img')) {
-      const variantId = forceVariant || FONT_GLYPHS[lower].selectVariant(ctx);
-      lastLetterVariantId = variantId;
+      const nextIdx = i + 1;
+      const next = chars[nextIdx] ? chars[nextIdx].toLowerCase() : null;
+      const ctxIdx = forceVariant ? i - 1 : i;
+      const ctx = getContext(text, ctxIdx, lastLetterVariantId);
+      const ctxWithNext = { ...ctx, nextChar: ctx.nextChar ?? next };
+      const el = renderChar(char, ctxWithNext, next, forceVariant);
+      container.appendChild(el);
+      if (char === ' ' || PUNCTUATION[char] !== undefined || FONT_PUNCTUATION[char]) {
+        lastLetterVariantId = null;
+      } else if (FONT_GLYPHS[lower] && el.querySelector && el.querySelector('img')) {
+        const variantId = forceVariant || FONT_GLYPHS[lower].selectVariant(ctxWithNext);
+        lastLetterVariantId = variantId;
+      }
     }
   }
+
+  const body = document.body;
+
+  const debugA = document.createElement('div');
+  debugA.className = 'debug-section';
+  const titleA = document.createElement('h2');
+  titleA.textContent = 'Отладка буквы А — комбинации';
+  debugA.appendChild(titleA);
+  renderText(debugA, A_DEBUG_TEXT);
+  body.appendChild(debugA);
+
+  const debugP = document.createElement('div');
+  debugP.className = 'debug-section';
+  const titleP = document.createElement('h2');
+  titleP.textContent = 'Отладка буквы П — комбинации';
+  debugP.appendChild(titleP);
+  renderText(debugP, P_DEBUG_TEXT);
+  body.appendChild(debugP);
+
+  const debugF = document.createElement('div');
+  debugF.className = 'debug-section';
+  const titleF = document.createElement('h2');
+  titleF.textContent = 'Отладка буквы Ф — комбинации';
+  debugF.appendChild(titleF);
+  renderText(debugF, F_DEBUG_TEXT);
+  body.appendChild(debugF);
+  renderText(body, FISH_TEXT);
 })();
 </script>
 </html>

@@ -174,26 +174,79 @@
     displayArea.innerHTML = '';
     let lastVariantId = null;
     const chars = [...text];
-    for (let i = 0; i <= chars.length; i++) {
-      if (i === cursorPos) {
+    const items = [];
+    let i = 0;
+
+    while (i <= chars.length) {
+      if (i === cursorPos) items.push({ type: 'cursor' });
+      if (i >= chars.length) break;
+
+      if (chars[i] === ' ') {
+        items.push({ type: 'space' });
+        i++;
+      } else if (chars[i] === '\n') {
+        items.push({ type: 'newline' });
+        i++;
+      } else {
+        const wordChars = [];
+        const start = i;
+        while (i < chars.length && chars[i] !== ' ' && chars[i] !== '\n') {
+          wordChars.push({ char: chars[i], index: i });
+          i++;
+        }
+        const end = i;
+        if (cursorPos > start && cursorPos < end) {
+          const part1 = wordChars.filter(w => w.index < cursorPos);
+          const part2 = wordChars.filter(w => w.index >= cursorPos);
+          if (part1.length) items.push({ type: 'word', chars: part1 });
+          items.push({ type: 'cursor' });
+          if (part2.length) items.push({ type: 'word', chars: part2 });
+        } else {
+          items.push({ type: 'word', chars: wordChars });
+        }
+      }
+    }
+
+    items.forEach((item) => {
+      if (item.type === 'cursor') {
         const cursor = document.createElement('span');
         cursor.className = 'cursor';
         cursor.textContent = '|';
         displayArea.appendChild(cursor);
+        return;
       }
-      if (i < chars.length) {
-        const ctx = getContext(text, i, lastVariantId);
-        const next = chars[i + 1] ? chars[i + 1].toLowerCase() : null;
-        const el = renderGlyph(chars[i], ctx, next);
-        displayArea.appendChild(el);
-        const lower = chars[i].toLowerCase();
-        if (chars[i] !== ' ' && FONT_GLYPHS[lower] && el.querySelector('img')) {
-          lastVariantId = FONT_GLYPHS[lower].selectVariant(ctx);
-        } else {
-          lastVariantId = null;
-        }
+      if (item.type === 'space') {
+        const sp = document.createElement('span');
+        sp.className = 'display-space';
+        sp.style.width = SPACE_WIDTH + 'px';
+        displayArea.appendChild(sp);
+        return;
       }
-    }
+      if (item.type === 'newline') {
+        const br = document.createElement('span');
+        br.className = 'display-newline';
+        displayArea.appendChild(br);
+        return;
+      }
+      if (item.type === 'word') {
+        const wordWrap = document.createElement('span');
+        wordWrap.className = 'display-word';
+        item.chars.forEach(({ char, index }) => {
+          const ctx = getContext(text, index, lastVariantId);
+          const next = chars[index + 1] ? chars[index + 1].toLowerCase() : null;
+          const ctxWithNext = { ...ctx, nextChar: ctx.nextChar ?? next };
+          const el = renderGlyph(char, ctxWithNext, next);
+          wordWrap.appendChild(el);
+          const lower = char.toLowerCase();
+          if (char !== ' ' && FONT_GLYPHS[lower] && el.querySelector && el.querySelector('img')) {
+            lastVariantId = FONT_GLYPHS[lower].selectVariant(ctxWithNext);
+          } else {
+            lastVariantId = null;
+          }
+        });
+        displayArea.appendChild(wordWrap);
+      }
+    });
   }
 
   function insertChar(char) {
@@ -337,105 +390,110 @@
     keyboardModalClose.addEventListener('click', closeKeyboardModal);
   }
 
-  // ========== Tension Scroll (Section 3) ==========
-  const sectionKeyboard = document.querySelector('.section-keyboard');
+  // ========== Section 3: Slides, loop, blackout ==========
   const sectionHidden = document.getElementById('sectionHidden');
+  const hiddenText = document.getElementById('hiddenText');
+  const hiddenSlides = document.getElementById('hiddenSlides');
+  const hiddenBonya = sectionHidden ? sectionHidden.querySelector('.hidden-bonya') : null;
+  const SLIDES = ['assets/slides/1.png', 'assets/slides/2.png', 'assets/slides/3.png', 'assets/slides/4.png', 'assets/slides/5.png'];
+  const INITIAL_DELAY_MS = 5000;
+  const TOTAL_BLACKOUT_MS = 15000;
 
-  if (!content || !sectionKeyboard || !sectionHidden) return;
+  if (sectionHidden && hiddenText && hiddenSlides) {
+    let timers = [];
+    let phaseStart = 0;
+    let inSection = false;
+    let blackoutDone = false;
 
-  const TENSION_THRESHOLD = 60; // преодолел 60px — снап к низу скрытого блока (TikTok)
-  const RESISTANCE = 0.5;      // 60px пальцем → 30px пролистывания (параллакс)
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const nowIn = entry.isIntersecting;
+        if (nowIn !== inSection) {
+          inSection = nowIn;
+          if (inSection) {
+            if (hiddenBonya) hiddenBonya.classList.add('hidden-bonya-up');
+            phaseStart = Date.now();
+            blackoutDone = false;
+            sectionHidden.classList.remove('section-blackout');
+            hiddenText.classList.remove('hidden-text-fade');
+            hiddenSlides.innerHTML = '';
+            addTimer(runPhaseLoop, INITIAL_DELAY_MS);
+          } else {
+            if (hiddenBonya) hiddenBonya.classList.remove('hidden-bonya-up');
+            timers.forEach(clearTimeout);
+            timers = [];
+          }
+        }
+      });
+    }, { threshold: 0.5 });
 
-  let touchStartY = 0;
-  let scrollStartTop = 0;
+    observer.observe(sectionHidden);
 
-  function getSection2End() {
-    const sectionHero = document.querySelector('.section-hero');
-    return sectionHero.offsetHeight + sectionKeyboard.offsetHeight - content.clientHeight;
-  }
-
-  content.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-    scrollStartTop = content.scrollTop;
-  }, { passive: true });
-
-  content.addEventListener('touchmove', (e) => {
-    const section2End = getSection2End();
-    const deltaY = touchStartY - e.touches[0].clientY;
-    if (content.scrollTop >= section2End - 2 && deltaY > 0) {
-      e.preventDefault();
-      const newScroll = scrollStartTop + deltaY * RESISTANCE;
-      const maxScroll = content.scrollHeight - content.clientHeight;
-      content.scrollTop = Math.min(newScroll, maxScroll);
+    function addTimer(fn, delay) {
+      const id = setTimeout(fn, delay);
+      timers.push(id);
     }
-  }, { passive: false });
 
-  content.addEventListener('touchend', () => {
-    const section2End = getSection2End();
-    const threshold = section2End + TENSION_THRESHOLD;
-
-    if (content.scrollTop > section2End && content.scrollTop < threshold) {
-      content.scrollTo({ top: section2End, behavior: 'smooth' });
-    } else if (content.scrollTop >= threshold) {
-      content.scrollTo({ top: content.scrollHeight - content.clientHeight, behavior: 'smooth' });
+    function showText() {
+      hiddenText.classList.remove('hidden-text-fade');
+      [...hiddenSlides.children].forEach(el => el.classList.remove('slide-visible'));
     }
-  });
 
-  // Mouse wheel resistance (desktop)
-  content.addEventListener('wheel', (e) => {
-    const section2End = getSection2End();
-    if (content.scrollTop >= section2End - 2 && e.deltaY > 0) {
-      e.preventDefault();
-      content.scrollTop = Math.min(
-        content.scrollTop + e.deltaY * RESISTANCE,
-        content.scrollHeight - content.clientHeight
-      );
+    function hideText() {
+      hiddenText.classList.add('hidden-text-fade');
     }
-  }, { passive: false });
 
-  // TikTok-style snapping: 10% потянул — автоматом на след. экран
-  const SNAP_THRESHOLD = 0.1;
-  let snapTimeout = null;
-
-  function getSectionTops() {
-    const hero = document.querySelector('.section-hero');
-    const keyboard = document.querySelector('.section-keyboard');
-    const hidden = document.getElementById('sectionHidden');
-    return {
-      s1: 0,
-      s2: hero ? hero.offsetHeight : content.clientHeight,
-      s3: hero && keyboard ? hero.offsetHeight + keyboard.offsetHeight : content.clientHeight * 2
-    };
-  }
-
-  function findSnapTarget() {
-    const tops = getSectionTops();
-    const scrollTop = content.scrollTop;
-    const vh = content.clientHeight;
-
-    if (scrollTop < tops.s2 * SNAP_THRESHOLD) return tops.s1;
-    if (scrollTop < tops.s2 + (tops.s3 - tops.s2) * (1 - SNAP_THRESHOLD)) return tops.s2;
-    return content.scrollHeight - content.clientHeight;
-  }
-
-  function applySnap() {
-    const target = findSnapTarget();
-    if (Math.abs(content.scrollTop - target) > 5) {
-      content.scrollTo({ top: target, behavior: 'smooth' });
+    function createSlides(shuffle, staggerMax) {
+      hiddenSlides.innerHTML = '';
+      const order = [...SLIDES];
+      if (shuffle) for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      order.forEach((src, i) => {
+        const img = document.createElement('img');
+        img.className = 'hidden-slide';
+        img.src = src;
+        img.alt = '';
+        const offsetX = (Math.random() - 0.5) * 50;
+        const rot = (Math.random() - 0.5) * 28;
+        img.style.transform = `translate(calc(-50% + ${offsetX}%), -50%) rotate(${rot}deg)`;
+        hiddenSlides.appendChild(img);
+        const delay = staggerMax ? Math.random() * staggerMax : i * 350;
+        addTimer(() => requestAnimationFrame(() => img.classList.add('slide-visible')), delay);
+      });
     }
+
+    function hideAllSlides() {
+      [...hiddenSlides.children].forEach(el => el.classList.remove('slide-visible'));
+    }
+
+    function runPhaseLoop() {
+      if (!inSection || blackoutDone) return;
+      const elapsed = Date.now() - phaseStart;
+
+      if (elapsed >= TOTAL_BLACKOUT_MS) {
+        blackoutDone = true;
+        sectionHidden.classList.add('section-blackout');
+        return;
+      }
+
+      const chaos = Math.min(elapsed / TOTAL_BLACKOUT_MS, 0.9);
+      const textDur = 2000 - chaos * 1200;
+      const slidesDur = 2500 - chaos * 1500;
+      const staggerMax = Math.max(100, 400 - chaos * 300);
+
+      hideText();
+      createSlides(chaos > 0.2, staggerMax);
+
+      addTimer(() => {
+        if (!inSection || blackoutDone) return;
+        hideAllSlides();
+        showText();
+        addTimer(runPhaseLoop, textDur);
+      }, slidesDur);
+    }
+
   }
 
-  function scheduleSnap() {
-    clearTimeout(snapTimeout);
-    snapTimeout = setTimeout(applySnap, 150);
-  }
-
-  content.addEventListener('scroll', () => {
-    const section2End = getSection2End();
-    if (content.scrollTop < section2End) scheduleSnap();
-  }, { passive: true });
-
-  content.addEventListener('touchend', () => {
-    if (content.scrollTop < getSection2End()) scheduleSnap();
-  }, { passive: true });
 })();

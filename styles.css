@@ -248,6 +248,12 @@ html, body {
   font-size: 20px;
 }
 
+.display-area .display-word {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+}
+
 .display-area .display-char,
 .display-area .display-space {
   display: inline-flex;
@@ -297,6 +303,7 @@ html, body {
   font-size: 24px;
   line-height: 80px;
   visibility: hidden;
+  transform: translateY(-8px);
 }
 
 .keyboard-open .cursor {
@@ -337,8 +344,16 @@ html, body {
   flex-shrink: 0;
 }
 
+.key-spacer-backspace {
+  flex: 1.2 1 0;
+  max-width: 3.5em;
+  width: auto;
+  min-width: 0;
+}
+
 .key-clear {
   margin-right: 4px;
+  transform: rotate(-90deg);
 }
 
 .key {
@@ -430,8 +445,9 @@ html, body {
 /* ========== Section 3: Hidden ========== */
 .section-hidden {
   background: #f8f8f8;
-  height: 600px;
-  min-height: 600px;
+  transition: background 1.5s ease;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -439,30 +455,72 @@ html, body {
   padding: 24px;
   position: relative;
   scroll-snap-align: end;
+  overflow: visible;
+}
+
+.section-hidden.section-blackout {
+  background: #000;
+}
+
+.section-hidden.section-blackout .hidden-content,
+.section-hidden.section-blackout .hidden-slides {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
 }
 
 .hidden-bonya {
   position: absolute;
-  top: -199px;
+  top: -200px;
   right: 0;
   z-index: 10;
   height: 240px;
   width: auto;
+  transition: transform 0.6s ease;
+}
+
+.hidden-bonya.hidden-bonya-up {
+  transform: translateY(-100px);
 }
 
 .hidden-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-}
-
-.hidden-svg {
-  color: #333;
 }
 
 .hidden-text {
   font-size: 14px;
   color: #888;
   text-align: center;
+  transition: opacity 1.5s ease;
+}
+
+.hidden-text.hidden-text-fade {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hidden-slides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.hidden-slide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  width: 85vw;
+  max-width: 420px;
+  height: auto;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.hidden-slide.slide-visible {
+  opacity: 0.9;
 }

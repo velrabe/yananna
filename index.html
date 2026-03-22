@@ -77,6 +77,7 @@
               <button class="key" data-char="э">э</button>
             </div>
             <div class="keyboard-row">
+              <span class="key-spacer key-spacer-backspace"></span>
               <button class="key" data-char="я">я</button>
               <button class="key" data-char="ч">ч</button>
               <button class="key" data-char="с">с</button>
@@ -110,15 +111,18 @@
         <button class="keyboard-toggle-btn" id="keyboardToggleBtn" type="button">↑</button>
       </section>
 
-      <!-- Section 3: Hidden (tension/snap) -->
+      <!-- Section 3: Hidden -->
       <section class="section section-hidden" id="sectionHidden">
         <img class="hidden-bonya" src="assets/bonya.png" alt="">
         <div class="hidden-content">
-          <svg class="hidden-svg" viewBox="0 0 64 48" width="64" height="48">
-            <rect width="64" height="48" fill="none" stroke="currentColor" stroke-width="1"/>
-          </svg>
-          <p class="hidden-text">Скрытый текст 14 пикселей серый, выровнен по центру</p>
+          <p class="hidden-text" id="hiddenText">
+            мне было важно это сделать<br>
+            это кусочек того, что я помню<br>
+            и чем я жил, и что меня вдохновляло<br>
+            я хочу этим поделиться с тобой
+          </p>
         </div>
+        <div class="hidden-slides" id="hiddenSlides"></div>
       </section>
     </main>
   </div>

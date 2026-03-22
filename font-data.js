@@ -26,7 +26,11 @@ const FONT_GLYPHS = {
       'а1': { file: 'а1', spacing: { left: 0, right: 0 } },
       'а2': { file: 'а2', spacing: { left: 0, right: 0 } }
     },
-    selectVariant: (ctx) => ctx.wordStart ? 'а1' : 'а2'
+    selectVariant: (ctx) => {
+      const nextUseA2 = ctx.nextChar && ['у', 'е', 'я', 'г', 'з', 'к', 'с', 'ц'].includes(ctx.nextChar);
+      if (nextUseA2) return 'а2';
+      return ctx.wordStart ? 'а1' : 'а2';
+    }
   },
   'б': {
     name: 'бэ',
@@ -59,7 +63,7 @@ const FONT_GLYPHS = {
   'д': {
     name: 'дэ',
     variants: {
-      'д1': { file: 'д1', spacing: { left: -70, right: 0 } },
+      'д1': { file: 'д1', spacing: { left: -70, right: -10 } },
       'д2': { file: 'д2', spacing: { left: -80, right: -10 } }
     },
     selectVariant: (ctx) => (ctx.positionInWord >= 6 ? 'д2' : 'д1')
@@ -226,7 +230,7 @@ const FONT_GLYPHS = {
   },
   'ы': {
     name: 'ы',
-    variants: { 'ы': { file: 'ы', spacing: { left: -20, right: 0 } } },
+    variants: { 'ы': { file: 'ы', spacing: { left: -5, right: 0 } } },
     selectVariant: () => 'ы'
   },
   'ь': {
