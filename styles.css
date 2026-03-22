@@ -27,11 +27,11 @@ html, body {
   max-width: 490px;
   display: flex;
   flex-direction: column;
-  scroll-snap-type: y mandatory;
-  scroll-snap-stop: normal;
+  scroll-snap-type: y proximity;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
 }
 
 /* ========== Section 1: Hero ========== */
@@ -164,6 +164,7 @@ html, body {
 /* ========== Section 2: Keyboard ========== */
 .section-keyboard {
   min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
   background: white;
   display: flex;
   flex-direction: column;
@@ -358,6 +359,8 @@ html, body {
 .key-clear-text {
   display: inline-block;
   transform: rotate(-90deg);
+  font-size: 14px;
+  color: #888;
 }
 
 .key {
@@ -409,6 +412,8 @@ html, body {
 .key-space {
   flex: 3 1 0;
   max-width: none;
+  font-size: 14px;
+  color: #888;
 }
 
 .key-backspace, .key-clear, .key-enter {
@@ -451,7 +456,7 @@ html, body {
   background: #f8f8f8;
   transition: background 1.5s ease;
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: calc(var(--vh, 1vh) * 100);
   display: flex;
   flex-direction: column;
   align-items: center;
