@@ -47,7 +47,6 @@ html, body {
   position: relative;
   overflow: hidden;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 
 .hero-inner {
@@ -169,7 +168,6 @@ html, body {
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
   flex: 1;
   padding-bottom: env(safe-area-inset-bottom, 34px);
 }
@@ -414,7 +412,7 @@ html, body {
 .keyboard-toggle-btn {
   display: block;
   margin: 8px;
-  margin-bottom: calc(24px + env(safe-area-inset-bottom, 34px));
+  margin-bottom: calc(58px + env(safe-area-inset-bottom, 34px));
   padding: 12px 16px;
   font-size: 24px;
   font-family: inherit;
@@ -440,11 +438,12 @@ html, body {
   justify-content: center;
   padding: 24px;
   position: relative;
+  scroll-snap-align: end;
 }
 
 .hidden-bonya {
   position: absolute;
-  top: -134px;
+  top: -202px;
   right: 0;
   z-index: 10;
   height: auto;
