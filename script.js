@@ -9,15 +9,32 @@
     'b-r': ['assets/b-r/1.png', 'assets/b-r/2.png', 'assets/b-r/3.png', 'assets/b-r/4.png', 'assets/b-r/5.png', 'assets/b-r/6.png', 'assets/b-r/7.png', 'assets/b-r/8.png']
   };
 
+  const MAX_VISIBLE = 2; // не больше двух слоёв одновременно
+
   function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  function scheduleShow(container) {
-    const delay = 5000 + Math.random() * 5000; // появление раз в 5–10 сек
+  function getVisibleCount() {
+    return document.querySelectorAll('.hero-img.hero-img-visible').length;
+  }
+
+  function scheduleShow(container, isFirst = false, isRetry = false) {
+    let delay;
+    if (isRetry) {
+      delay = 800 + Math.random() * 1700; // слот занят — ретрай через 0.8–2.5 сек
+    } else if (isFirst) {
+      delay = Math.random() * 5000;       // первый показ 0–5 сек
+    } else {
+      delay = 4000 + Math.random() * 10000; // между показами 4–14 сек
+    }
     setTimeout(() => {
+      if (getVisibleCount() >= MAX_VISIBLE) {
+        scheduleShow(container, false, true);
+        return;
+      }
       container.classList.add('hero-img-visible');
-      const cycleInterval = 400 + Math.random() * 300; // перелистывание картинок каждые 0.4–0.7 сек
+      const cycleInterval = 350 + Math.random() * 400; // 0.35–0.75 сек между сменами
       const intervalId = setInterval(() => {
         const images = IMAGE_SETS[container.dataset.folder];
         if (images && images.length) {
@@ -25,24 +42,26 @@
           if (img) img.src = pickRandom(images);
         }
       }, cycleInterval);
-      const visibleTime = 3000 + Math.random() * 2000; // на экране 3–5 сек
+      const visibleTime = 2000 + Math.random() * 4000; // на экране 2–6 сек
       setTimeout(() => {
         clearInterval(intervalId);
         container.classList.remove('hero-img-visible');
-        scheduleShow(container);
+        scheduleShow(container, false, false);
       }, visibleTime);
     }, delay);
   }
 
+  // Старт с разбросом: каждый контейнер свой случайный первый показ (0–6 сек)
   document.querySelectorAll('.hero-img[data-folder]').forEach((container) => {
-    const stagger = Math.random() * 1000; // случайная задержка 0–1 сек до старта
-    setTimeout(() => scheduleShow(container), stagger);
+    scheduleShow(container, true);
   });
 
   // ========== Keyboard & Display (SVG font) ==========
   const FONT_PATH = 'assets/font/';
   const GLYPH_HEIGHT = 80;
-  const SPACE_WIDTH = Math.round(37 * GLYPH_HEIGHT / 140);
+  const SVG_HEIGHT = 140;
+  const SPACE_WIDTH = Math.round(37 * GLYPH_HEIGHT / SVG_HEIGHT);
+  const DEFAULT_WIDTH = 25;
 
   const displayArea = document.getElementById('displayArea');
 
@@ -90,19 +109,18 @@
     span.className = 'display-char';
     const punct = FONT_PUNCTUATION[char];
     if (punct) {
+      const w140 = (typeof GLYPH_WIDTHS !== 'undefined' && GLYPH_WIDTHS[punct.file]) ? GLYPH_WIDTHS[punct.file] : DEFAULT_WIDTH;
+      const glyphW = Math.round(w140 * GLYPH_HEIGHT / SVG_HEIGHT);
       const img = document.createElement('img');
-      img.src = FONT_PATH + punct.file + '.svg?t=' + Date.now();
+      img.src = FONT_PATH + punct.file + '.svg';
       img.alt = char;
+      img.style.width = glyphW + 'px';
       img.style.height = GLYPH_HEIGHT + 'px';
+      img.style.flexShrink = '0';
       span.appendChild(img);
       const s = getSpacing(punct, nextChar);
-      const applySpacing = () => {
-        const w = img.offsetWidth;
-        span.style.marginLeft = (w * (s.left || 0) / 100) + 'px';
-        span.style.marginRight = (w * (s.right || 0) / 100) + 'px';
-      };
-      img.onload = applySpacing;
-      if (img.complete) applySpacing();
+      span.style.marginLeft = (glyphW * (s.left || 0) / 100) + 'px';
+      span.style.marginRight = (glyphW * (s.right || 0) / 100) + 'px';
       return span;
     }
     const lower = char.toLowerCase();
@@ -117,19 +135,18 @@
     const variantId = glyph.selectVariant(ctx);
     const variant = glyph.variants[variantId];
     if (!variant) return span;
+    const w140 = (typeof GLYPH_WIDTHS !== 'undefined' && GLYPH_WIDTHS[variant.file]) ? GLYPH_WIDTHS[variant.file] : DEFAULT_WIDTH;
+    const glyphW = Math.round(w140 * GLYPH_HEIGHT / SVG_HEIGHT);
     const img = document.createElement('img');
-    img.src = FONT_PATH + variant.file + '.svg?t=' + Date.now();
+    img.src = FONT_PATH + variant.file + '.svg';
     img.alt = char;
+    img.style.width = glyphW + 'px';
     img.style.height = GLYPH_HEIGHT + 'px';
+    img.style.flexShrink = '0';
     span.appendChild(img);
     const s = getSpacing(variant, nextChar);
-    const applySpacing = () => {
-      const w = img.offsetWidth;
-      span.style.marginLeft = (w * (s.left || 0) / 100) + 'px';
-      span.style.marginRight = (w * (s.right || 0) / 100) + 'px';
-    };
-    img.onload = applySpacing;
-    if (img.complete) applySpacing();
+    span.style.marginLeft = (glyphW * (s.left || 0) / 100) + 'px';
+    span.style.marginRight = (glyphW * (s.right || 0) / 100) + 'px';
     return span;
   }
 
@@ -196,7 +213,7 @@
   if (!content || !sectionKeyboard || !sectionHidden) return;
 
   const TENSION_THRESHOLD = 50; // px to overcome for snap to section 3
-  const RESISTANCE = 0.6;      // scroll delta multiplier in tension zone (выше = легче прокрутить)
+  const RESISTANCE = 0.5;      // 60px скролла → ~30px движения (параллакс: тянешь сильно, идёт слабо)
 
   let touchStartY = 0;
   let scrollStartTop = 0;
@@ -244,4 +261,50 @@
       );
     }
   }, { passive: false });
+
+  // TikTok-style snapping: 10% потянул — автоматом на след. экран
+  const SNAP_THRESHOLD = 0.1;
+  let snapTimeout = null;
+
+  function getSectionTops() {
+    const hero = document.querySelector('.section-hero');
+    const keyboard = document.querySelector('.section-keyboard');
+    const hidden = document.getElementById('sectionHidden');
+    return {
+      s1: 0,
+      s2: hero ? hero.offsetHeight : content.clientHeight,
+      s3: hero && keyboard ? hero.offsetHeight + keyboard.offsetHeight : content.clientHeight * 2
+    };
+  }
+
+  function findSnapTarget() {
+    const tops = getSectionTops();
+    const scrollTop = content.scrollTop;
+    const vh = content.clientHeight;
+
+    if (scrollTop < tops.s2 * SNAP_THRESHOLD) return tops.s1;
+    if (scrollTop < tops.s2 + (tops.s3 - tops.s2) * (1 - SNAP_THRESHOLD)) return tops.s2;
+    return content.scrollHeight - content.clientHeight;
+  }
+
+  function applySnap() {
+    const target = findSnapTarget();
+    if (Math.abs(content.scrollTop - target) > 5) {
+      content.scrollTo({ top: target, behavior: 'smooth' });
+    }
+  }
+
+  function scheduleSnap() {
+    clearTimeout(snapTimeout);
+    snapTimeout = setTimeout(applySnap, 150);
+  }
+
+  content.addEventListener('scroll', () => {
+    const section2End = getSection2End();
+    if (content.scrollTop < section2End) scheduleSnap();
+  }, { passive: true });
+
+  content.addEventListener('touchend', () => {
+    if (content.scrollTop < getSection2End()) scheduleSnap();
+  }, { passive: true });
 })();

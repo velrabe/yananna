@@ -25,7 +25,7 @@ html, body {
   max-width: 490px;
   display: flex;
   flex-direction: column;
-  scroll-snap-type: y proximity;
+  scroll-snap-type: y mandatory;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -43,6 +43,7 @@ html, body {
   position: relative;
   overflow: hidden;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .hero-inner {
@@ -80,6 +81,13 @@ html, body {
   height: auto;
   transform: translate(-50%, -50%);
   object-fit: cover;
+  opacity: 0;
+  animation: video-fade-in 5s ease-out forwards;
+}
+
+@keyframes video-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .hero-bg-layer {
@@ -156,6 +164,7 @@ html, body {
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   flex: 1;
 }
 
@@ -187,6 +196,8 @@ html, body {
   height: 80px;
   width: auto;
   display: block;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 .display-area .display-space {
@@ -300,6 +311,7 @@ html, body {
   justify-content: center;
   padding: 24px;
   scroll-snap-align: end;
+  scroll-snap-stop: always;
 }
 
 .hidden-content {
