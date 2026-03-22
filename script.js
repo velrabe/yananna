@@ -1,6 +1,15 @@
 (function () {
   'use strict';
 
+  // ========== iOS viewport fix (100vh игнорирует нижнюю панель Safari) ==========
+  function setVh() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', vh + 'px');
+  }
+  setVh();
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+
   // ========== Hero Images: pop-in + rapid cycling ==========
   const IMAGE_SETS = {
     't-l': ['assets/t-l/1.png', 'assets/t-l/2.png'],
