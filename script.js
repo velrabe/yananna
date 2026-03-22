@@ -288,22 +288,34 @@
   updateDisplay();
 
   // ========== Keyboard Modal ==========
-  const keyboardTeaser = document.getElementById('keyboardTeaser');
   const keyboardModal = document.getElementById('keyboardModal');
   const keyboardModalClose = document.getElementById('keyboardModalClose');
+  const keyboardToggleBtn = document.getElementById('keyboardToggleBtn');
 
   function openKeyboardModal() {
-    keyboardModal.classList.add('is-open');
-    keyboardModal.setAttribute('aria-hidden', 'false');
+    if (keyboardModal) {
+      keyboardModal.classList.add('is-open');
+      keyboardModal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('keyboard-open');
+    }
   }
   function closeKeyboardModal() {
-    keyboardModal.classList.remove('is-open');
-    keyboardModal.setAttribute('aria-hidden', 'true');
+    if (keyboardModal) {
+      keyboardModal.classList.remove('is-open');
+      keyboardModal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('keyboard-open');
+    }
   }
 
-  if (keyboardTeaser) keyboardTeaser.addEventListener('click', openKeyboardModal);
-  if (keyboardTeaser) keyboardTeaser.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openKeyboardModal(); } });
-  if (keyboardModalClose) keyboardModalClose.addEventListener('click', closeKeyboardModal);
+  if (keyboardToggleBtn) {
+    keyboardToggleBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      openKeyboardModal();
+    });
+  }
+  if (keyboardModalClose) {
+    keyboardModalClose.addEventListener('click', closeKeyboardModal);
+  }
 
   // ========== Tension Scroll (Section 3) ==========
   const content = document.querySelector('.content');
