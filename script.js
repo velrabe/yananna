@@ -99,6 +99,11 @@
   }
 
   function renderGlyph(char, ctx, nextChar) {
+    if (char === '\n') {
+      const br = document.createElement('span');
+      br.className = 'display-newline';
+      return br;
+    }
     if (char === ' ') {
       const sp = document.createElement('span');
       sp.className = 'display-space';
@@ -112,7 +117,10 @@
       const w140 = (typeof GLYPH_WIDTHS !== 'undefined' && GLYPH_WIDTHS[punct.file]) ? GLYPH_WIDTHS[punct.file] : DEFAULT_WIDTH;
       const glyphW = Math.round(w140 * GLYPH_HEIGHT / SVG_HEIGHT);
       const img = document.createElement('img');
+      span.classList.add('loading');
       img.src = FONT_PATH + punct.file + '.svg';
+      img.onload = () => span.classList.remove('loading');
+      if (img.complete) img.onload();
       img.alt = char;
       img.style.width = glyphW + 'px';
       img.style.height = GLYPH_HEIGHT + 'px';
@@ -138,7 +146,10 @@
     const w140 = (typeof GLYPH_WIDTHS !== 'undefined' && GLYPH_WIDTHS[variant.file]) ? GLYPH_WIDTHS[variant.file] : DEFAULT_WIDTH;
     const glyphW = Math.round(w140 * GLYPH_HEIGHT / SVG_HEIGHT);
     const img = document.createElement('img');
+    span.classList.add('loading');
     img.src = FONT_PATH + variant.file + '.svg';
+    img.onload = () => span.classList.remove('loading');
+    if (img.complete) img.onload();
     img.alt = char;
     img.style.width = glyphW + 'px';
     img.style.height = GLYPH_HEIGHT + 'px';
@@ -193,6 +204,12 @@
   function clearAll() {
     text = '';
     cursorPos = 0;
+    updateDisplay();
+  }
+
+  function insertNewline() {
+    text = text.slice(0, cursorPos) + '\n' + text.slice(cursorPos);
+    cursorPos++;
     updateDisplay();
   }
 
@@ -266,8 +283,27 @@
 
   document.querySelector('.key-backspace').addEventListener('click', backspace);
   document.querySelector('.key-clear').addEventListener('click', clearAll);
+  document.querySelector('.key-enter').addEventListener('click', insertNewline);
 
   updateDisplay();
+
+  // ========== Keyboard Modal ==========
+  const keyboardTeaser = document.getElementById('keyboardTeaser');
+  const keyboardModal = document.getElementById('keyboardModal');
+  const keyboardModalClose = document.getElementById('keyboardModalClose');
+
+  function openKeyboardModal() {
+    keyboardModal.classList.add('is-open');
+    keyboardModal.setAttribute('aria-hidden', 'false');
+  }
+  function closeKeyboardModal() {
+    keyboardModal.classList.remove('is-open');
+    keyboardModal.setAttribute('aria-hidden', 'true');
+  }
+
+  if (keyboardTeaser) keyboardTeaser.addEventListener('click', openKeyboardModal);
+  if (keyboardTeaser) keyboardTeaser.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openKeyboardModal(); } });
+  if (keyboardModalClose) keyboardModalClose.addEventListener('click', closeKeyboardModal);
 
   // ========== Tension Scroll (Section 3) ==========
   const content = document.querySelector('.content');

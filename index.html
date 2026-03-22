@@ -46,9 +46,15 @@
           <div class="display-wrapper">
             <div class="display-area" id="displayArea"></div>
           </div>
-          <div class="keyboard-bottom">
-            <div class="display-hint"><img src="assets/hint.svg" alt=""></div>
-            <div class="keyboard">
+          <div class="keyboard-teaser" id="keyboardTeaser" role="button" tabindex="0">
+            <div class="keyboard-teaser-overlay"></div>
+            <div class="keyboard-teaser-arrow">↑</div>
+          </div>
+        </div>
+        <div class="keyboard-modal" id="keyboardModal" aria-hidden="true">
+          <button class="keyboard-modal-close" id="keyboardModalClose">✕ Закрыть</button>
+          <div class="display-hint"><img src="assets/hint.svg" alt=""></div>
+          <div class="keyboard" id="keyboard">
             <div class="keyboard-row">
               <button class="key" data-char="й">й</button>
               <button class="key" data-char="ц">ц</button>
@@ -97,8 +103,8 @@
               <button class="key" data-char=":">:</button>
               <button class="key" data-char=",">,</button>
               <button class="key" data-char=".">.</button>
+              <button class="key key-enter">↵</button>
             </div>
-          </div>
           </div>
         </div>
         <p class="congrats-text">

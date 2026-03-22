@@ -128,7 +128,7 @@ html, body {
 
 .hero-img-3 {
   left: 0%;
-  top: 12%;
+  top: -1%;
   transform: rotate(5deg);
 }
 
@@ -192,11 +192,80 @@ html, body {
   gap: 0;
 }
 
-.keyboard-bottom {
+.keyboard-teaser {
   margin-top: auto;
   flex: 0 0 auto;
+  height: 30%;
+  min-height: 72px;
+  max-height: 120px;
+  position: relative;
+  background: #e8e8e8;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.keyboard-teaser-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.keyboard-teaser-arrow {
+  position: relative;
+  z-index: 1;
+  font-size: 32px;
+  color: #333;
+}
+
+.keyboard-modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  box-sizing: border-box;
+  background: white;
+  padding: 8px 4px calc(24px + env(safe-area-inset-bottom, 0));
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.keyboard-modal.is-open {
+  transform: translateY(0);
+}
+
+.keyboard-modal-close {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  color: #333;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.keyboard-modal .keyboard {
+  padding: 4px 2px;
+  width: 100%;
+}
+
+.keyboard-modal .keyboard-row {
+  gap: 4px;
+}
+
+.keyboard-modal .key {
+  height: 52px;
+  font-size: 20px;
 }
 
 .display-hint {
@@ -225,10 +294,28 @@ html, body {
   display: block;
   flex-shrink: 0;
   object-fit: contain;
+  transition: opacity 0.4s ease-out;
+}
+
+.display-area .display-char.loading img {
+  opacity: 0.35;
+  animation: glyph-load-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes glyph-load-pulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.55; }
 }
 
 .display-area .display-space {
   flex-shrink: 0;
+}
+
+.display-area .display-newline {
+  flex-basis: 100%;
+  width: 100%;
+  height: 0;
+  overflow: hidden;
 }
 
 .display-area .display-fallback {
@@ -330,8 +417,8 @@ html, body {
   max-width: none;
 }
 
-.key-backspace, .key-clear {
-  font-size: clamp(14px, 3.5vw, 18px);
+.key-backspace, .key-clear, .key-enter {
+  font-size: clamp(12px, 3vw, 16px);
 }
 
 .key-arrow {
