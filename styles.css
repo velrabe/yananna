@@ -368,7 +368,7 @@ html, body {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   position: relative;
-  font-size: 14px;
+  font-size: 12px;
   color: #888;
 }
 
@@ -421,7 +421,7 @@ html, body {
 .key-space {
   flex: 3 1 0;
   max-width: none;
-  font-size: 14px;
+  font-size: 12px;
   color: #888;
 }
 
