@@ -68,6 +68,48 @@
     scheduleShow(container, true);
   });
 
+  // ========== Hero: стрелка вниз через 5 сек, скролл ко 2-й секции ==========
+  const heroSection = document.querySelector('.section-hero');
+  const heroScrollHint = document.getElementById('heroScrollHint');
+  const heroTargetSection = document.querySelector('.section-keyboard');
+  const HERO_HINT_DELAY_MS = 5000;
+  const HERO_BOUNCE_DELAY_MS = 10000;
+
+  if (heroSection && heroScrollHint && heroTargetSection) {
+    let heroTime = 0;
+    let heroTimer = null;
+
+    const heroIo = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          heroTimer = setInterval(() => {
+            heroTime += 200;
+            if (heroTime >= HERO_HINT_DELAY_MS) {
+              heroScrollHint.classList.add('is-visible');
+            }
+            if (heroTime >= HERO_BOUNCE_DELAY_MS) {
+              clearInterval(heroTimer);
+              heroTimer = null;
+              heroScrollHint.classList.add('is-bouncing');
+            }
+          }, 200);
+        } else {
+          if (heroTimer) {
+            clearInterval(heroTimer);
+            heroTimer = null;
+          }
+          heroTime = 0;
+          heroScrollHint.classList.remove('is-bouncing');
+        }
+      });
+    }, { threshold: 0.5 });
+    heroIo.observe(heroSection);
+
+    heroScrollHint.addEventListener('click', () => {
+      heroTargetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
   // ========== Keyboard & Display (SVG font) ==========
   const FONT_PATH = 'assets/font/';
   const GLYPH_HEIGHT = 80;
