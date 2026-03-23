@@ -393,20 +393,29 @@
     keyboardModalClose.addEventListener('click', closeKeyboardModal);
   }
 
-  // ========== Section 3: Slides, loop, blackout ==========
+  // ========== Section 3: Slides ==========
   const sectionHidden = document.getElementById('sectionHidden');
   const hiddenText = document.getElementById('hiddenText');
   const hiddenSlides = document.getElementById('hiddenSlides');
   const hiddenBonya = sectionHidden ? sectionHidden.querySelector('.hidden-bonya') : null;
-  const SLIDES = ['assets/slides/1.png', 'assets/slides/2.png', 'assets/slides/3.png', 'assets/slides/4.png', 'assets/slides/5.png'];
+  const SLIDES = ['assets/slides/1.png', 'assets/slides/2.png', 'assets/slides/3.png', 'assets/slides/4.png', 'assets/slides/5.png', 'assets/slides/6.png', 'assets/slides/7.png', 'assets/slides/8.png', 'assets/slides/9.png', 'assets/slides/10.png', 'assets/slides/11.png'];
   const INITIAL_DELAY_MS = 5000;
-  const TOTAL_BLACKOUT_MS = 15000;
+  const STAGGER_MS = 3000;
+  const SLIDE_LIFETIME_MS = 10000;
+  const CLICK_REAPPEAR_MS = 5000;
 
   if (sectionHidden && hiddenText && hiddenSlides) {
     let timers = [];
-    let phaseStart = 0;
     let inSection = false;
-    let blackoutDone = false;
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -415,16 +424,13 @@
           inSection = nowIn;
           if (inSection) {
             if (hiddenBonya) hiddenBonya.classList.add('hidden-bonya-up');
-            phaseStart = Date.now();
-            blackoutDone = false;
-            sectionHidden.classList.remove('section-blackout');
-            hiddenText.classList.remove('hidden-text-fade');
             hiddenSlides.innerHTML = '';
-            addTimer(runPhaseLoop, INITIAL_DELAY_MS);
+            addTimer(startSlides, INITIAL_DELAY_MS);
           } else {
             if (hiddenBonya) hiddenBonya.classList.remove('hidden-bonya-up');
             timers.forEach(clearTimeout);
             timers = [];
+            hiddenSlides.innerHTML = '';
           }
         }
       });
@@ -433,68 +439,74 @@
     observer.observe(sectionHidden);
 
     function addTimer(fn, delay) {
-      const id = setTimeout(fn, delay);
-      timers.push(id);
+      timers.push(setTimeout(fn, delay));
     }
 
-    function showText() {
-      hiddenText.classList.remove('hidden-text-fade');
-      [...hiddenSlides.children].forEach(el => el.classList.remove('slide-visible'));
-    }
-
-    function hideText() {
-      hiddenText.classList.add('hidden-text-fade');
-    }
-
-    function createSlides(shuffle, staggerMax) {
-      hiddenSlides.innerHTML = '';
-      const order = [...SLIDES];
-      if (shuffle) for (let i = order.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [order[i], order[j]] = [order[j], order[i]];
-      }
-      order.forEach((src, i) => {
-        const img = document.createElement('img');
-        img.className = 'hidden-slide';
-        img.src = src;
-        img.alt = '';
-        const offsetX = (Math.random() - 0.5) * 50;
-        const rot = (Math.random() - 0.5) * 28;
-        img.style.transform = `translate(calc(-50% + ${offsetX}%), -50%) rotate(${rot}deg)`;
-        hiddenSlides.appendChild(img);
-        const delay = staggerMax ? Math.random() * staggerMax : i * 350;
-        addTimer(() => requestAnimationFrame(() => img.classList.add('slide-visible')), delay);
+    const ZONES = ['top', 'center', 'bottom'];
+    function createSlide(src, onShow, onHide) {
+      const zone = ZONES[Math.floor(Math.random() * 3)];
+      const img = document.createElement('img');
+      img.className = 'hidden-slide hidden-slide-' + zone;
+      img.src = src;
+      img.alt = '';
+      const offsetX = (Math.random() - 0.5) * 60;
+      const rot = (Math.random() - 0.5) * 28;
+      img.style.transform = `translate(calc(-50% + ${offsetX}%), -50%) rotate(${rot}deg)`;
+      img.addEventListener('click', () => {
+        if (!img.classList.contains('slide-visible')) return;
+        img.classList.remove('slide-visible');
+        if (onHide) onHide();
+        addTimer(() => {
+          if (!inSection) return;
+          requestAnimationFrame(() => img.classList.add('slide-visible'));
+          if (onShow) onShow();
+        }, CLICK_REAPPEAR_MS);
       });
+      return img;
     }
 
-    function hideAllSlides() {
-      [...hiddenSlides.children].forEach(el => el.classList.remove('slide-visible'));
-    }
+    function startSlides() {
+      if (!inSection) return;
+      hiddenSlides.innerHTML = '';
 
-    function runPhaseLoop() {
-      if (!inSection || blackoutDone) return;
-      const elapsed = Date.now() - phaseStart;
+      const order = shuffle(SLIDES);
+      order.forEach((src, i) => {
+        const showAt = i * STAGGER_MS;
+        let hideTimer = null;
 
-      if (elapsed >= TOTAL_BLACKOUT_MS) {
-        blackoutDone = true;
-        sectionHidden.classList.add('section-blackout');
-        return;
-      }
+        const scheduleHide = () => {
+          if (hideTimer) clearTimeout(hideTimer);
+          hideTimer = setTimeout(() => {
+            if (!img.parentNode) return;
+            img.classList.remove('slide-visible');
+          }, SLIDE_LIFETIME_MS);
+        };
 
-      const chaos = Math.min(elapsed / TOTAL_BLACKOUT_MS, 0.9);
-      const textDur = 2000 - chaos * 1200;
-      const slidesDur = 2500 - chaos * 1500;
-      const staggerMax = Math.max(100, 400 - chaos * 300);
+        const img = createSlide(src, scheduleHide, () => {
+          if (hideTimer) clearTimeout(hideTimer);
+        });
 
-      hideText();
-      createSlides(chaos > 0.2, staggerMax);
+        hiddenSlides.appendChild(img);
 
+        addTimer(() => {
+          if (!inSection || !img.parentNode) return;
+          requestAnimationFrame(() => img.classList.add('slide-visible'));
+          scheduleHide();
+        }, showAt);
+      });
+
+      const lastShowAt = (SLIDES.length - 1) * STAGGER_MS;
+      const totalCycleMs = lastShowAt + SLIDE_LIFETIME_MS + 2000;
       addTimer(() => {
-        if (!inSection || blackoutDone) return;
-        hideAllSlides();
-        showText();
-        addTimer(runPhaseLoop, textDur);
-      }, slidesDur);
+        if (!inSection) return;
+        runCycle();
+      }, totalCycleMs);
+    }
+
+    function runCycle() {
+      if (!inSection) return;
+      [...hiddenSlides.children].forEach(el => el.classList.remove('slide-visible'));
+      addTimer(startSlides, 2000);
     }
 
   }

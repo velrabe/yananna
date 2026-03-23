@@ -477,17 +477,6 @@ html, body {
   overflow: visible;
 }
 
-.section-hidden.section-blackout {
-  background: #000;
-}
-
-.section-hidden.section-blackout .hidden-content,
-.section-hidden.section-blackout .hidden-slides {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1.5s ease;
-}
-
 .hidden-bonya {
   position: absolute;
   top: -200px;
@@ -523,23 +512,37 @@ html, body {
 .hidden-slides {
   position: absolute;
   inset: 0;
-  pointer-events: none;
   overflow: visible;
+  pointer-events: none;
 }
 
 .hidden-slide {
   position: absolute;
-  top: 50%;
   left: 50%;
   transform-origin: center center;
-  width: 85vw;
-  max-width: 420px;
+  width: 90vw;
+  max-width: 480px;
   height: auto;
   object-fit: contain;
   opacity: 0;
   transition: opacity 1.2s ease;
+  pointer-events: none;
+}
+
+.hidden-slide-top {
+  top: 16.67%;
+}
+
+.hidden-slide-center {
+  top: 50%;
+}
+
+.hidden-slide-bottom {
+  top: 83.33%;
 }
 
 .hidden-slide.slide-visible {
   opacity: 0.9;
+  pointer-events: auto;
+  cursor: pointer;
 }
