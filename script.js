@@ -383,18 +383,57 @@
     }
   }
 
+  let arrowClicked = false;
+  let section2Time = 0;
+  let section2Timer = null;
+  const SECTION2_UNLOCK_MS = 5000;
+  const sectionHidden = document.getElementById('sectionHidden');
+  const sectionKeyboard = document.querySelector('.section-keyboard');
+
+  function checkUnlockSection3() {
+    if (arrowClicked && section2Time >= SECTION2_UNLOCK_MS && sectionHidden) {
+      sectionHidden.classList.remove('section-hidden-locked');
+    }
+  }
+
   if (keyboardToggleBtn) {
     keyboardToggleBtn.addEventListener('click', function(e) {
       e.preventDefault();
+      arrowClicked = true;
+      checkUnlockSection3();
       scrollToDisplayAndOpenKeyboard();
     });
   }
+
+  if (sectionKeyboard) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          section2Timer = setInterval(() => {
+            section2Time += 200;
+            if (section2Time >= SECTION2_UNLOCK_MS) {
+              clearInterval(section2Timer);
+              section2Timer = null;
+            }
+            checkUnlockSection3();
+          }, 200);
+        } else {
+          if (section2Timer) {
+            clearInterval(section2Timer);
+            section2Timer = null;
+          }
+          section2Time = 0;
+        }
+      });
+    }, { threshold: 0.3 });
+    io.observe(sectionKeyboard);
+  }
+
   if (keyboardModalClose) {
     keyboardModalClose.addEventListener('click', closeKeyboardModal);
   }
 
   // ========== Section 3: Slides ==========
-  const sectionHidden = document.getElementById('sectionHidden');
   const hiddenText = document.getElementById('hiddenText');
   const hiddenSlides = document.getElementById('hiddenSlides');
   const hiddenBonya = sectionHidden ? sectionHidden.querySelector('.hidden-bonya') : null;
