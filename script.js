@@ -145,11 +145,15 @@
     return { wordStart, prevChar: prev ? prev.toLowerCase() : null, nextChar: next ? next.toLowerCase() : null, positionInWord, prevGlyphVariantId: lastVariantId, isStandaloneWord: letterCountInWord === 1 };
   }
 
-  function getSpacing(glyphData, nextChar) {
+  function getSpacing(glyphData, nextChar, prevChar) {
     const base = glyphData.spacing || { left: 0, right: 0 };
-    if (nextChar && glyphData.nextOverrides && glyphData.nextOverrides[nextChar])
-      return { left: base.left, right: glyphData.nextOverrides[nextChar].right !== undefined ? glyphData.nextOverrides[nextChar].right : base.right };
-    return base;
+    let left = base.left;
+    let right = base.right;
+    if (prevChar && glyphData.prevOverrides && glyphData.prevOverrides[prevChar] && glyphData.prevOverrides[prevChar].left !== undefined)
+      left = glyphData.prevOverrides[prevChar].left;
+    if (nextChar && glyphData.nextOverrides && glyphData.nextOverrides[nextChar] && glyphData.nextOverrides[nextChar].right !== undefined)
+      right = glyphData.nextOverrides[nextChar].right;
+    return { left, right };
   }
 
   function renderGlyph(char, ctx, nextChar) {
@@ -180,7 +184,7 @@
       img.style.height = GLYPH_HEIGHT + 'px';
       img.style.flexShrink = '0';
       span.appendChild(img);
-      const s = getSpacing(punct, nextChar);
+      const s = getSpacing(punct, nextChar, ctx.prevChar);
       span.style.marginLeft = (glyphW * (s.left || 0) / 100) + 'px';
       span.style.marginRight = (glyphW * (s.right || 0) / 100) + 'px';
       return span;
@@ -209,7 +213,7 @@
     img.style.height = GLYPH_HEIGHT + 'px';
     img.style.flexShrink = '0';
     span.appendChild(img);
-    const s = getSpacing(variant, nextChar);
+    const s = getSpacing(variant, nextChar, ctx.prevChar);
     span.style.marginLeft = (glyphW * (s.left || 0) / 100) + 'px';
     span.style.marginRight = (glyphW * (s.right || 0) / 100) + 'px';
     return span;

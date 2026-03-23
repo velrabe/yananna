@@ -160,8 +160,8 @@ const FONT_GLYPHS = {
   'р': {
     name: 'эр',
     variants: {
-      'р1': { file: 'р1', spacing: { left: -30, right: -40 } },
-      'р2': { file: 'р2', spacing: { left: -30, right: -30 } }
+      'р1': { file: 'р1', spacing: { left: -30, right: -40 }, prevOverrides: { 'п': { left: -40 } } },
+      'р2': { file: 'р2', spacing: { left: -30, right: -30 }, prevOverrides: { 'п': { left: -40 } } }
     },
     selectVariant: (ctx) => 'р1'
   },
