@@ -77,7 +77,7 @@
 
   const displayArea = document.getElementById('displayArea');
 
-  let text = 'Спасибо за вдохновение!';
+  let text = 'С днем рождения!';
   let cursorPos = text.length;
 
   function isLetterOrPunct(char) {

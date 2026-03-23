@@ -485,6 +485,7 @@ html, body {
   height: 240px;
   width: auto;
   transition: transform 0.6s ease;
+  pointer-events: none;
 }
 
 .hidden-bonya.hidden-bonya-up {
