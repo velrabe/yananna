@@ -1,6 +1,11 @@
 (function () {
   'use strict';
 
+  const METRIKA_ID = 108200993;
+  function reachGoal(name) {
+    if (typeof ym === 'function') ym(METRIKA_ID, 'reachGoal', name);
+  }
+
   // ========== iOS viewport fix (100vh игнорирует нижнюю панель Safari) ==========
   function setVh() {
     const h = window.visualViewport?.height ?? window.innerHeight;
@@ -358,6 +363,7 @@
   function handleKeyPress(btn, useSecondary) {
     const char = useSecondary ? (btn.dataset.secondary || btn.dataset.char) : btn.dataset.char;
     insertChar(char);
+    reachGoal('letter_input');
   }
 
   document.querySelectorAll('.key[data-char]').forEach(btn => {
@@ -448,6 +454,7 @@
       arrowClicked = true;
       checkUnlockSection3();
       scrollToDisplayAndOpenKeyboard();
+      reachGoal('open_keyboard');
     });
   }
 
@@ -484,7 +491,7 @@
   const hiddenSlides = document.getElementById('hiddenSlides');
   const hiddenBonya = sectionHidden ? sectionHidden.querySelector('.hidden-bonya') : null;
   const SLIDES = ['assets/slides/1.png', 'assets/slides/2.png', 'assets/slides/3.png', 'assets/slides/4.png', 'assets/slides/5.png', 'assets/slides/6.png', 'assets/slides/7.png', 'assets/slides/8.png', 'assets/slides/9.png', 'assets/slides/10.png', 'assets/slides/11.png'];
-  const INITIAL_DELAY_MS = 5000;
+  const INITIAL_DELAY_MS = 2000;
   const STAGGER_MS = 3000;
   const SLIDE_LIFETIME_MS = 10000;
   const CLICK_REAPPEAR_MS = 5000;
@@ -492,6 +499,8 @@
   if (sectionHidden && hiddenText && hiddenSlides) {
     let timers = [];
     let inSection = false;
+    let section3GoalFired = false;
+    let devSlidesGoalFired = false;
 
     function shuffle(arr) {
       const a = [...arr];
@@ -508,6 +517,10 @@
         if (nowIn !== inSection) {
           inSection = nowIn;
           if (inSection) {
+            if (!section3GoalFired) {
+              section3GoalFired = true;
+              reachGoal('opened_section_3');
+            }
             if (hiddenBonya) hiddenBonya.classList.add('hidden-bonya-up');
             hiddenSlides.innerHTML = '';
             addTimer(startSlides, INITIAL_DELAY_MS);
@@ -552,6 +565,10 @@
 
     function startSlides() {
       if (!inSection) return;
+      if (!devSlidesGoalFired) {
+        devSlidesGoalFired = true;
+        reachGoal('opened_dev_slides');
+      }
       hiddenSlides.innerHTML = '';
 
       const order = shuffle(SLIDES);
