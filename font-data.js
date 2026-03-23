@@ -47,8 +47,8 @@ const FONT_GLYPHS = {
   'в': {
     name: 'вэ',
     variants: {
-      'в1': { file: 'в1', spacing: { left: -5, right: -70 } },
-      'в2': { file: 'в2', spacing: { left: -5, right: -70 } }
+      'в1': { file: 'в1', spacing: { left: 0, right: -70 } },
+      'в2': { file: 'в2', spacing: { left: 0, right: -70 } }
     },
     selectVariant: (ctx) => (ctx.prevGlyphVariantId === 'т2' ? 'в1' : 'в2')
   },
@@ -71,8 +71,8 @@ const FONT_GLYPHS = {
   'е': {
     name: 'е',
     variants: {
-      'е1': { file: 'е1', spacing: { left: -10, right: -10 } },
-      'е2': { file: 'е2', spacing: { left: -10, right: -10 } }
+      'е1': { file: 'е1', spacing: { left: -5, right: -5 } },
+      'е2': { file: 'е2', spacing: { left: -5, right: -5 } }
     },
     selectVariant: (ctx) => 'е1'
   },
@@ -120,7 +120,7 @@ const FONT_GLYPHS = {
   },
   'л': {
     name: 'эль',
-    variants: { 'л': { file: 'л', spacing: { left: -10, right: -20 } } },
+    variants: { 'л': { file: 'л', spacing: { left: 0, right: -20 } } },
     selectVariant: () => 'л'
   },
   'м': {
