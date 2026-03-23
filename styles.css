@@ -27,11 +27,10 @@ html, body {
   max-width: 490px;
   display: flex;
   flex-direction: column;
-  scroll-snap-type: y proximity;
+  scroll-snap-type: y mandatory;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: none;
 }
 
 /* ========== Section 1: Hero ========== */
@@ -163,13 +162,13 @@ html, body {
 
 /* ========== Section 2: Keyboard ========== */
 .section-keyboard {
-  min-height: 100vh;
-  min-height: calc(var(--vh, 1vh) * 100);
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  min-height: 100svh;
   background: white;
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
-  flex: 1;
   padding-bottom: env(safe-area-inset-bottom, 34px);
 }
 
@@ -193,7 +192,10 @@ html, body {
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-end;
+  align-content: flex-end;
   gap: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .keyboard-modal {
@@ -252,7 +254,10 @@ html, body {
 .display-area .display-word {
   display: inline-flex;
   flex-wrap: nowrap;
+  flex-shrink: 0;
+  min-width: min-content;
   align-items: flex-end;
+  white-space: nowrap;
 }
 
 .display-area .display-char,
@@ -358,7 +363,11 @@ html, body {
 
 .key-clear-text {
   display: inline-block;
-  transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg) translateZ(0);
+  transform: rotate(-90deg) translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  position: relative;
   font-size: 14px;
   color: #888;
 }
